@@ -2,8 +2,9 @@ import math
 
 START_POSITION = 50
 sum = 0
-input = "./input_one.txt"
+input = "./day01/input.txt"
 # input = "./start.txt"
+# input = "./day01/my_input.txt"
 
 
 class Node:
@@ -152,5 +153,5 @@ sum_one = part_one()
 print(f"SUM_ONE={sum_one}")
 sum_two = part_two()
 print(f"SUM_TWO={sum_two}")
-sum_two_b = part_two_testing()
-print(f"SUM_TWO_B={sum_two_b}")
+# sum_two_b = part_two_testing()
+# print(f"SUM_TWO_B={sum_two_b}")
