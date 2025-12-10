@@ -30,3 +30,16 @@ func AllSame(s string) bool {
 
 	return true
 }
+
+func SetupDay(path string) {
+
+	err := os.MkdirAll(path, 0750)
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.WriteFile(path+"/input.txt", []byte(""), 0640)
+	err = os.WriteFile(path+"/sample.txt", []byte(""), 0640)
+	err = os.WriteFile(path+"/solve.go", []byte(""), 0640)
+
+}
