@@ -12,7 +12,7 @@ func LoadFile(file string) string {
 		panic(err)
 	}
 
-	str := strings.Trim(string(data), "")
+	str := strings.Trim(string(data), "\n")
 
 	return str
 }
