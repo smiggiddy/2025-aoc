@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"fmt"
 	"slices"
 	"strconv"
@@ -57,9 +58,44 @@ func partOne(data string) {
 
 }
 
+func partTwo(data string) {
+	var c []ranges
+	var sum int = 0
+
+	data = strings.TrimSpace(data)
+	seq := strings.Split(data, "\n\n")
+	groups := sortGroup(seq[0])
+
+	slices.SortFunc(groups, func(a, b ranges) int {
+		return cmp.Compare(a.start, b.start)
+	})
+
+	current := groups[0]
+	count := 1
+
+	for count < len(groups) {
+		next := groups[count]
+
+		if current.end >= next.start {
+			current.end = max(next.end, current.end)
+		} else {
+			c = append(c, current)
+			current = next
+		}
+		count += 1
+	}
+	c = append(c, current)
+
+	for _, group := range c {
+		sum += (group.end - group.start) + 1
+	}
+	fmt.Println(sum)
+}
+
 func main() {
 	data := aoctools.LoadFile("./day05/input.txt")
 	// data := aoctools.LoadFile("./day05/sample.txt")
 	partOne(data)
+	partTwo(data)
 
 }
