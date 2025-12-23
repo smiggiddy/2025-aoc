@@ -9,16 +9,41 @@ import (
 )
 
 func main() {
-	pathPtr := flag.String("day", "", "Creates a dir and starter files at pwd")
+	setupCmd := flag.NewFlagSet("setup", flag.ExitOnError)
+	setupDay := setupCmd.String("day", "", "Creates a dir and starter files at pwd")
 
-	flag.Parse()
+	getInputCmd := flag.NewFlagSet("getinput", flag.ExitOnError)
+	getInputDay := getInputCmd.Int("day", 0, "AOC Day")
+	getInputYear := getInputCmd.Int("year", 0, "AOC Year")
 
-	if len(*pathPtr) == 0 {
-		fmt.Println("Please include a path")
+	if len(os.Args) < 2 {
+		fmt.Println("Expected 'setup' or 'getinput' subcommands.")
+		os.Exit(1)
+	}
+
+	switch os.Args[1] {
+	case "setup":
+		setupCmd.Parse(os.Args[2:])
+		if len(*setupDay) == 0 {
+			fmt.Println("Please specify which day to create directory and files.")
+			os.Exit(1)
+
+		}
+
+		if *setupDay != "" {
+			aoctools.SetupDay(*setupDay)
+		}
+
+	case "getinput":
+		{
+			getInputCmd.Parse(os.Args[2:])
+			aoctools.GetInput(*getInputDay, *getInputYear)
+
+		}
+	default:
+		fmt.Println("Expected 'setup' or 'input' subcommands")
 		os.Exit(1)
 
 	}
-
-	aoctools.SetupDay(*pathPtr)
 
 }
