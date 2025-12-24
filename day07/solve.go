@@ -9,21 +9,18 @@ import (
 
 func checkPresence(i map[int]bool, key int) bool {
 	_, check := i[key]
-
 	return check == true
 }
 func checkPresenceInt(i map[int]int, key int) bool {
 	_, check := i[key]
-
 	return check == true
 }
 
 func partOne(data string) {
 	text := strings.SplitSeq(data, "\n")
-
 	positions := make(map[int]bool)
-
 	splitCount := 0
+
 	for line := range text {
 		for i, c := range line {
 			if c == 'S' {
@@ -46,7 +43,6 @@ func partOne(data string) {
 				}
 				splitCount += 1
 			}
-
 		}
 	}
 	fmt.Println("Arrow Count:", splitCount)
@@ -54,34 +50,30 @@ func partOne(data string) {
 }
 func partTwo(data string) {
 	text := strings.SplitSeq(data, "\n")
+	timelines := make(map[int]int)
+	sums := 0
 
-	positions := make(map[int]int)
-
-	for line := range text {
-		for i, c := range line {
+	for row := range text {
+		for i, c := range row {
 			if c == 'S' {
-				positions[i] = 1
+				timelines[i] = 1
 				continue
 			}
 
-			if c == '^' && positions[i] == 1 {
-				delete(positions, i)
-
+			if c == '^' && checkPresenceInt(timelines, i) {
 				newPosMin := max(0, i-1)
-				newPostMax := min(len(line)-1, i+1)
-
-				if !checkPresenceInt(positions, newPosMin) {
-					positions[newPosMin] += 1
-				}
-
-				if !checkPresenceInt(positions, newPostMax) {
-					positions[newPostMax] += 1
-				}
+				newPostMax := min(len(row)-1, i+1)
+				timelines[newPosMin] += timelines[i]
+				timelines[newPostMax] += timelines[i]
+				delete(timelines, i)
 			}
 
 		}
 	}
-	fmt.Println("Arrow Count:", positions)
+	for _, v := range timelines {
+		sums += v
+	}
+	fmt.Println("Timelines:", sums)
 
 }
 
