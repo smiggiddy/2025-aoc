@@ -52,67 +52,76 @@ func SetupDay(path string) {
 
 }
 
-func GetInput(day, year int) {
+func GetInput(day, year int) ([]byte, error) {
 	if day == 0 || year == 0 {
-		fmt.Println("Please enter a valid day")
-		os.Exit(1)
+		return nil, fmt.Errorf("Please enter a valid day\n")
 	}
 
 	aocURL := fmt.Sprintf("%s/%d/day/%d/input", url, year, day)
 
-	input := setupRequest(aocURL)
-
-	var dayString string
-	if day < 10 {
-
-		dayString = "0" + strconv.Itoa(day)
-	} else {
-		dayString = strconv.Itoa(day)
-	}
-	filePath := fmt.Sprintf("day%s/input_test.txt", dayString)
-	err := os.WriteFile(filePath, input, 06440)
+	cookie, err := loadCookieFile("./aoctools/cookie.txt")
 	if err != nil {
-		fmt.Println("Error saving input", err)
-		os.Exit(1)
+		return nil, err
 	}
-}
 
-func setupRequest(url string) []byte {
-	cookieValue, err := os.ReadFile("./cookie.txt")
-	if err != nil {
-		fmt.Println("Error reading cookie file", err)
-		os.Exit(1)
-	}
 	client := &http.Client{
 		Transport: &http.Transport{},
 	}
 
+	req, err := setupRequest(aocURL, cookie)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error: %v", err)
+	}
+
+	return body, nil
+}
+
+func loadCookieFile(filePath string) (string, error) {
+	cookieValue, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+	cookie := strings.TrimSpace(string(cookieValue))
+	return cookie, nil
+}
+
+func FormatDayString(day int) (dayString string) {
+	if day < 10 {
+		dayString = "0" + strconv.Itoa(day)
+	} else {
+		dayString = strconv.Itoa(day)
+	}
+	return
+}
+
+func setupRequest(url, cookieValue string) (*http.Request, error) {
+
 	cookie := &http.Cookie{
 		Name:  "session",
-		Value: string(cookieValue),
+		Value: cookieValue,
 		Path:  "/",
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("Error Creating Request%v", err)
 	}
 
 	req.AddCookie(cookie)
 
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36")
 
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	return body
+	return req, nil
 
 }
