@@ -54,7 +54,7 @@ func main() {
 
 			if outputFile {
 				dayString := aoctools.FormatDayString(*getInputDay)
-				filePath := fmt.Sprintf("day%s/input_test.txt", dayString)
+				filePath := fmt.Sprintf("day%s/input.txt", dayString)
 
 				err = os.WriteFile(filePath, input, 0644)
 				if err != nil {
