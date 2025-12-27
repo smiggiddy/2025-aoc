@@ -1,8 +1,10 @@
 package main
 
 import (
+	"cmp"
 	"fmt"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -10,7 +12,17 @@ import (
 )
 
 type battery struct {
-	x, y, z int
+	x, y, z   int
+	inCircuit bool
+}
+
+type circuit struct {
+	batteries []battery
+}
+
+type comparisons struct {
+	b1, b2   battery
+	distance int
 }
 
 func getDistance(b1, b2 battery) int {
@@ -24,11 +36,8 @@ func getDistance(b1, b2 battery) int {
 
 }
 
-func main() {
-	data := aoctools.LoadFile("./day08/sample.txt")
-	lines := strings.SplitSeq(data, "\n")
-
-	var batteries []battery
+func getBatts(d string) (batts []battery) {
+	lines := strings.SplitSeq(d, "\n")
 
 	for l := range lines {
 		str := strings.TrimSpace(l)
@@ -41,26 +50,47 @@ func main() {
 			y: y,
 			z: z,
 		}
-		batteries = append(batteries, batt)
+		batts = append(batts, batt)
 	}
+	return
 
-	for r := range len(batteries) {
-		distance := 0
-		for i := range batteries {
+}
+
+func main() {
+	data := aoctools.LoadFile("./day08/sample.txt")
+	batts := getBatts(data)
+
+	var distances []comparisons
+	visited := make(map[int]bool)
+
+	for r := range len(batts) {
+		dist := 0
+		for i := range batts {
 			if i == r {
 				continue
 			}
 
-			d := getDistance(batteries[r], batteries[i])
-			if distance == 0 {
-				distance = d
+			d := getDistance(batts[r], batts[i])
+			c := comparisons{
+				b1:       batts[r],
+				b2:       batts[i],
+				distance: d,
 			}
-			fmt.Printf("Distance=%v, batt1=%v, batt2=%v\n", d, batteries[r], batteries[i])
-
-			distance = min(d, distance)
+			if _, ok := visited[d]; !ok {
+				distances = append(distances, c)
+				visited[d] = true
+			}
+			if dist == 0 {
+				dist = d
+			}
+			dist = min(d, dist)
 		}
-		fmt.Printf("Smallest Distance=%v\n\n", distance)
 
 	}
+
+	slices.SortFunc(distances, func(a, b comparisons) int {
+		return cmp.Compare(a.distance, b.distance)
+	})
+	fmt.Println(distances)
 
 }
